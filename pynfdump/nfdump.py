@@ -6,6 +6,9 @@ from IPy import IP
 
 FILE_FMT = "%Y %m %d %H %M".replace(" ","")
 
+def date_to_fn(date):
+    return 'nfcapd.' + date.strftime(FILE_FMT)
+
 def run(cmds):
     output = Popen(cmds, stdout=PIPE).communicate()[0]
     return output
@@ -17,6 +20,7 @@ class Dumper:
         self.datadir = datadir
         self.profile = profile
         self.sources = sources
+        self.set_where()
 
     def set_where(self, start=None, end=None):
         self.start = start
@@ -29,10 +33,18 @@ class Dumper:
         if end:
             self.ed = parse_date(end)
 
+        if not self.sd:
+            self._where = '.'
+        else:
+            self._where = date_to_fn(self.sd)
+            if self.ed:
+                self._where += ":" + date_to_fn(self.ed)
+
     def search(self, query, args=None, aggregate=None, statistics=None, statistics_order=None):
         sources = ':'.join(self.sources)
         d = os.path.join(self.datadir, self.profile, sources)
-        cmd = ['nfdump', '-o','pipe', '-M', d, '-R', '.', query]
+
+        cmd = ['nfdump', '-o','pipe', '-M', d, '-R', self._where, query]
 
 
         if aggregate and statistics:
