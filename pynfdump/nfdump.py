@@ -1,6 +1,7 @@
 import os
 from mx.DateTime import DateTimeFrom as parse_date, DateTimeFromTicks
 from subprocess import Popen, PIPE
+import commands
 
 from IPy import IP
 
@@ -10,16 +11,18 @@ def date_to_fn(date):
     return 'nfcapd.' + date.strftime(FILE_FMT)
 
 def run(cmds):
+    print ' '.join(cmds)
     output = Popen(cmds, stdout=PIPE).communicate()[0]
     return output
 
 class Dumper:
-    def __init__(self, datadir, profile='live',sources=None):
+    def __init__(self, datadir, profile='live',sources=None,remote_host=None):
         if not datadir.endswith("/"):
             datadir = datadir + '/'
         self.datadir = datadir
         self.profile = profile
         self.sources = sources
+        self.remote_host = remote_host
         self.set_where()
 
     def set_where(self, start=None, end=None):
@@ -40,20 +43,32 @@ class Dumper:
             if self.ed:
                 self._where += ":" + date_to_fn(self.ed)
 
-    def search(self, query, args=None, aggregate=None, statistics=None, statistics_order=None):
+    def make_query(self, q):
+        if self.remote_host:
+            return commands.mkarg(q)
+        else:
+            return q
+
+    def search(self, query, args=None, aggregate=None, statistics=None, statistics_order=None,limit=None):
         sources = ':'.join(self.sources)
         d = os.path.join(self.datadir, self.profile, sources)
 
-        cmd = ['nfdump', '-o','pipe', '-M', d, '-R', self._where, query]
+        cmd = []
+        if self.remote_host:
+            cmd = ['ssh', self.remote_host]
+
+        cmd.extend(['nfdump', '-o','pipe', '-M', d, '-R', self._where, self.make_query(query)])
 
 
         if aggregate and statistics:
             raise RuntimeError("Specify only one of aggregate and statistics")
 
         if statistics:
+            s_arg = statistics
             if statistics_order:
-                statistics = "%s/%s" % (statistics, statistics_order)
-            cmd.extend(["-s", statistics])
+                s_arg = "%s/%s" % (statistics, statistics_order)
+
+            cmd.extend(["-s", s_arg])
 
         if aggregate:
             if aggregate is True:
@@ -61,9 +76,15 @@ class Dumper:
             else:
                 cmd.extend(["-a", "-A", aggregate])
 
+        if limit:
+            if statistics:
+                cmd.extend(['-n',str(limit)])
+            else:
+                cmd.extend(['-c',str(limit)])
+
         out = run(cmd)
         if statistics:
-            return self.parse_stats(out)
+            return self.parse_stats(out, object_field=statistics)
         else:
             return self.parse_search(out)
 
@@ -100,12 +121,16 @@ class Dumper:
             }
             yield row
 
-    def parse_stats(self, out):
+    def parse_stats(self, out,object_field):
         for line in out.splitlines():
             parts = line.split("|")
             if not len(parts) > 10:
                 print line
                 continue
+            if '0|0|0|0' in line:
+                object_idx = 9
+            else:
+                object_idx = 6
             row = {
                 'af':           parts[0],
                 'first':        DateTimeFromTicks(parts[1]),
@@ -113,12 +138,16 @@ class Dumper:
                 'last':         DateTimeFromTicks(parts[3]),
                 #'msec_last':    parts[4],
                 'prot':         parts[5],
-                'object':       IP(parts[6]),
-                'flows':        parts[7],
-                'packets':      IP(parts[8]),
-                'bytes':        parts[9],
-                'pps':          parts[10],
-                'bps':          parts[11],
-                'bpp':          parts[12],
+                object_field:   parts[object_idx],
+                'flows':        parts[object_idx+1],
+                'packets':      parts[object_idx+2],
+                'bytes':        parts[object_idx+3],
+                'pps':          parts[object_idx+4],
+                'bps':          parts[object_idx+5],
+                'bpp':          parts[object_idx+6],
             }
+
+            if 'ip' in object_field:
+                row[object_field] = IP(row[object_field])
+
             yield row
