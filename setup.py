@@ -1,5 +1,6 @@
 from setuptools import setup, find_packages
 import sys, os
+from glob import glob
 
 version = '0.1'
 
@@ -20,7 +21,5 @@ setup(name='pynfdump',
       install_requires=[
           # -*- Extra requirements: -*-
       ],
-      entry_points="""
-      # -*- Entry points: -*-
-      """,
+      scripts=glob('scripts/*'),
       )
