@@ -5,7 +5,6 @@ import mx.DateTime
 def show_top(data_dir, remote_host, profile, sources, start_date=None):
     if start_date is None:
         start_date = mx.DateTime.today()
-    print data_dir, remote_host, profile, sources, start_date
     d=nfdump.Dumper(data_dir, profile, sources, remote_host)
     d.set_where(start_date)
 
