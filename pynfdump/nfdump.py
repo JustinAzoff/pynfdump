@@ -133,7 +133,7 @@ class Dumper:
                 'flags':        parts[20],
                 'tos':          parts[21],
                 'packets':      parts[22],
-                'octects':      parts[23],
+                'bytes':        parts[23],
             }
             yield row
 

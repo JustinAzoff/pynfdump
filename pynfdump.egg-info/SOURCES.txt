@@ -1,9 +1,11 @@
 setup.cfg
 setup.py
 pynfdump/__init__.py
+pynfdump/nfdump.py
 pynfdump.egg-info/PKG-INFO
 pynfdump.egg-info/SOURCES.txt
 pynfdump.egg-info/dependency_links.txt
 pynfdump.egg-info/entry_points.txt
+pynfdump.egg-info/paster_plugins.txt
 pynfdump.egg-info/top_level.txt
 pynfdump.egg-info/zip-safe
