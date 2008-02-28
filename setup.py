@@ -7,8 +7,19 @@ version = '0.1'
 setup(name='pynfdump',
     version=version,
     description="python interface to nfdump",
-    long_description="""\ """,
-    classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
+    long_description="""\
+pynfdump is a frontend to the nfdump CLI app
+It supports normal, aggregation, and statistics modes.
+It supports running nfdump on a remote host via ssh.
+""",
+    classifiers=[
+        "Topic :: System :: Networking",
+        "Environment :: Console",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python",
+        "Development Status :: 3 - Alpha",
+    ],
     keywords='nfdump netflow',
     author='Justin Azoff',
     author_email='JAzoff@uamail.albany.edu',
@@ -18,7 +29,8 @@ setup(name='pynfdump',
     include_package_data=True,
     zip_safe=True,
     install_requires=[
-        "dateutil"
+        "dateutil",
+        "IPy",
     ],
     scripts=glob('scripts/*'),
     )
