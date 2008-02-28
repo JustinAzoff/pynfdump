@@ -8,7 +8,7 @@ Python frontend to the nfdump CLI
 """
 
 import os
-from dateutil.parser import parse_date
+from dateutil.parser import parse parse_date
 import datetime.datetime
 fromtimestamp = datetime.datetime.fromtimestamp
 
