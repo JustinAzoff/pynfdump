@@ -9,7 +9,7 @@ Python frontend to the nfdump CLI
 
 import os
 from dateutil.parser import parse as parse_date
-import datetime.datetime
+import datetime
 fromtimestamp = datetime.datetime.fromtimestamp
 
 from subprocess import Popen, PIPE
