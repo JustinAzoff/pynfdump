@@ -11,9 +11,21 @@ def date_to_fn(date):
     return 'nfcapd.' + date.strftime(FILE_FMT)
 
 def run(cmds):
-    print ' '.join(cmds)
-    output = Popen(cmds, stdout=PIPE).communicate()[0]
+    #print ' '.join(cmds)
+    output = Popen(cmds, stdout=PIPE,stderr=PIPE).communicate()
     return output
+
+def maybe_int(val):
+    try:
+        val = int(val)
+    except TypeError:
+        pass
+    except ValueError:
+        pass
+    return val
+
+class NFDumpError(Exception):
+    pass
 
 class Dumper:
     def __init__(self, datadir, profile='live',sources=None,remote_host=None):
@@ -61,7 +73,7 @@ class Dumper:
 
 
         if aggregate and statistics:
-            raise RuntimeError("Specify only one of aggregate and statistics")
+            raise NFDumpError("Specify only one of aggregate and statistics")
 
         if statistics:
             s_arg = statistics
@@ -82,15 +94,19 @@ class Dumper:
             else:
                 cmd.extend(['-c',str(limit)])
 
-        out = run(cmd)
+        out,err = run(cmd)
+        out = out.splitlines()
+        if err:
+            raise NFDumpError(err)
         if statistics:
             return self.parse_stats(out, object_field=statistics)
         else:
             return self.parse_search(out)
 
     def parse_search(self, out):
-        for line in out.splitlines():
+        for line in out:
             parts = line.split("|")
+            parts = [maybe_int(x) for x in parts]
             if not len(parts) > 20:
                 continue
             row = {
@@ -122,10 +138,11 @@ class Dumper:
             yield row
 
     def parse_stats(self, out,object_field):
-        for line in out.splitlines():
+        for line in out:
             parts = line.split("|")
+            parts = [maybe_int(x) for x in parts]
             if not len(parts) > 10:
-                print line
+                #print line
                 continue
             if '0|0|0|0' in line:
                 object_idx = 9
@@ -151,3 +168,31 @@ class Dumper:
                 row[object_field] = IP(row[object_field])
 
             yield row
+
+
+    def list_profiles(self):
+        if not self.remote_host:
+            return os.listdir(self.datadir)
+        else:
+            return run(['ssh', self.remote_host, '/bin/ls', self.datadir])[0].split()
+
+    def get_profile_data(self, profile=None):
+        p = profile or self.profile
+    
+        path = os.path.join(self.datadir,p,'profile.dat')
+    
+        if not self.remote_host:
+            data = open(path).read()
+        else:
+            data = run(['ssh', self.remote_host, '/bin/cat', path])[0]
+
+        ret = {}
+        for line in data.splitlines():
+            if not line: continue
+            if line[0] in ' #': continue
+            key, val = line.split(" = ", 1)
+            if key == 'sourcelist':
+                val = val.split(":")
+
+            ret[key] = maybe_int(val)
+        return ret
