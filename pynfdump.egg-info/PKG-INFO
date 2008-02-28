@@ -1,11 +1,11 @@
 Metadata-Version: 1.0
 Name: pynfdump
-Version: 0.1dev-r4482
+Version: 0.1dev-r4484
 Summary: python interface to nfdump
 Home-page: UNKNOWN
 Author: Justin Azoff
 Author-email: JAzoff@uamail.albany.edu
 License: LGPL
-Description: UNKNOWN
+Description: \
 Keywords: nfdump netflow
 Platform: UNKNOWN
