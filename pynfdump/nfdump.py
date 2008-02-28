@@ -8,7 +8,10 @@ Python frontend to the nfdump CLI
 """
 
 import os
-from mx.DateTime import DateTimeFrom as parse_date, DateTimeFromTicks
+from dateutil.parser import parse_date
+import datetime.datetime
+fromtimestamp = datetime.datetime.fromtimestamp
+
 from subprocess import Popen, PIPE
 import commands
 
@@ -134,9 +137,9 @@ class Dumper:
                 continue
             row = {
                 'af':           parts[0],
-                'first':        DateTimeFromTicks(parts[1]),
+                'first':        fromtimestamp(parts[1]),
                 #'msec_first':   parts[2],
-                'last':         DateTimeFromTicks(parts[3]),
+                'last':         fromtimestamp(parts[3]),
                 #'msec_last':    parts[4],
                 'prot':         parts[5],
                 #'sa0':          parts[6],
@@ -173,9 +176,9 @@ class Dumper:
                 object_idx = 6
             row = {
                 'af':           parts[0],
-                'first':        DateTimeFromTicks(parts[1]),
+                'first':        fromtimestamp(parts[1]),
                 #'msec_first':   parts[2],
-                'last':         DateTimeFromTicks(parts[3]),
+                'last':         fromtimestamp(parts[3]),
                 #'msec_last':    parts[4],
                 'prot':         parts[5],
                 object_field:   parts[object_idx],

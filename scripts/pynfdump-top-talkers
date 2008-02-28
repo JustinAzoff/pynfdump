@@ -1,11 +1,17 @@
 #!/usr/bin/env python
-from pynfdump import nfdump
-import mx.DateTime
+# pynfdump-top-talkers
+# Copyright (C) 2008 Justin Azoff JAzoff@uamail.albany.edu
+#
+# This module is released under the MIT License:
+# http://www.opensource.org/licenses/mit-license.php
+
+from dateutil.parser import parse
+import pynfdump
 
 def show_top(data_dir, remote_host, profile, sources, start_date=None):
     if start_date is None:
-        start_date = mx.DateTime.today()
-    d=nfdump.Dumper(data_dir, profile, sources, remote_host)
+        start_date = parse("")
+    d=pynfdump.Dumper(data_dir, profile, sources, remote_host)
     d.set_where(start_date)
 
     print "%-19s %-10s %-10s %-10s" % ('ip','flows','packets','bytes')
@@ -15,9 +21,6 @@ def show_top(data_dir, remote_host, profile, sources, start_date=None):
             if x==0: continue
             print "    %(ip)-15s %(flows)-10s %(packets)-10s %(bytes)-10s" % r
             
-
-
-
 def main():
     import sys
     from optparse import OptionParser

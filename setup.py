@@ -19,7 +19,7 @@ setup(name='pynfdump',
       include_package_data=True,
       zip_safe=True,
       install_requires=[
-          # -*- Extra requirements: -*-
+        "dateutil"
       ],
       scripts=glob('scripts/*'),
       )
