@@ -1,3 +1,12 @@
+# nfdump.py
+# Copyright (C) 2008 Justin Azoff JAzoff@uamail.albany.edu
+#
+# This module is released under the MIT License:
+# http://www.opensource.org/licenses/mit-license.php
+"""
+Python frontend to the nfdump CLI
+"""
+
 import os
 from mx.DateTime import DateTimeFrom as parse_date, DateTimeFromTicks
 from subprocess import Popen, PIPE
@@ -38,6 +47,10 @@ class Dumper:
         self.set_where()
 
     def set_where(self, start=None, end=None):
+        """Set the timeframe of the nfdump query
+           Specify just the start date or both the start and end date
+        """
+        
         self.start = start
         self.end = end
 
@@ -61,7 +74,15 @@ class Dumper:
         else:
             return q
 
-    def search(self, query, args=None, aggregate=None, statistics=None, statistics_order=None,limit=None):
+    def search(self, query, aggregate=None, statistics=None, statistics_order=None,limit=None):
+        """Run nfdump with the following arguments:
+            * aggregate: (True OR comma sep string OR list) of 'srcip dstip srcport dstport'
+            * statistics Generate netflow statistics info
+            * statistics_order: one of srcip, dstip, ip, srcport, dstport, port
+                                       srcas, dstas, as, inif , outif, proto
+            * limit number of results
+        """
+
         sources = ':'.join(self.sources)
         d = os.path.join(self.datadir, self.profile, sources)
 
@@ -86,6 +107,8 @@ class Dumper:
             if aggregate is True:
                 cmd.append("-a")
             else:
+                if ',' not in aggregate:
+                    aggregate = ','.join(aggregate)
                 cmd.extend(["-a", "-A", aggregate])
 
         if limit:
@@ -171,12 +194,14 @@ class Dumper:
 
 
     def list_profiles(self):
+        """Return a list of the nfsen profiles"""
         if not self.remote_host:
             return os.listdir(self.datadir)
         else:
             return run(['ssh', self.remote_host, '/bin/ls', self.datadir])[0].split()
 
     def get_profile_data(self, profile=None):
+        """Return a dictionary of the nfsen profile data"""
         p = profile or self.profile
     
         path = os.path.join(self.datadir,p,'profile.dat')
