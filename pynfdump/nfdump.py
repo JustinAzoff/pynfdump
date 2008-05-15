@@ -215,12 +215,17 @@ class Dumper:
             data = run(['ssh', self.remote_host, '/bin/cat', path])[0]
 
         ret = {}
+        sourcelist = []
         for line in data.splitlines():
             if not line: continue
             if line[0] in ' #': continue
             key, val = line.split(" = ", 1)
-            if key == 'sourcelist':
-                val = val.split(":")
+            if key == 'channel':
+                chan = val.split(":")[0]
+                sourcelist.append(chan)
+                continue
 
             ret[key] = maybe_int(val)
+            if sourcelist:
+                ret['sourcelist'] = sourcelist
         return ret
