@@ -226,6 +226,6 @@ class Dumper:
                 continue
 
             ret[key] = maybe_int(val)
-            if sourcelist:
-                ret['sourcelist'] = sourcelist
+        if sourcelist:
+            ret['sourcelist'] = sourcelist
         return ret
