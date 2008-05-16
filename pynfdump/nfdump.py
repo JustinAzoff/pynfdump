@@ -49,7 +49,7 @@ class Dumper:
         self.remote_host = remote_host
         self.set_where()
 
-    def set_where(self, start=None, end=None):
+    def set_where(self, start=None, end=None,stdin=False):
         """Set the timeframe of the nfdump query
            Specify just the start date or both the start and end date
         """
@@ -71,6 +71,8 @@ class Dumper:
             if self.ed:
                 self._where += ":" + date_to_fn(self.ed)
 
+        self.stdin = stdin
+
     def make_query(self, q):
         if self.remote_host:
             return commands.mkarg(q)
@@ -86,14 +88,17 @@ class Dumper:
             * limit number of results
         """
 
-        sources = ':'.join(self.sources)
-        d = os.path.join(self.datadir, self.profile, sources)
 
         cmd = []
         if self.remote_host:
             cmd = ['ssh', self.remote_host]
 
-        cmd.extend(['nfdump', '-o','pipe', '-M', d, '-R', self._where, self.make_query(query)])
+        if self.stdin:
+            cmd.extend(['nfdump', '-o','pipe', '-r', '-', self.make_query(query)])
+        else:
+            sources = ':'.join(self.sources)
+            d = os.path.join(self.datadir, self.profile, sources)
+            cmd.extend(['nfdump', '-o','pipe', '-M', d, '-R', self._where, self.make_query(query)])
 
 
         if aggregate and statistics:
