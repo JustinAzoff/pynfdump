@@ -12,7 +12,7 @@ stat_to_query = {
     'ip': 'host'
 }
 
-def show_top(data_dir, remote_host, profile, sources, start_date=None, first='ip/bytes', second='ip/bytes'):
+def show_top(data_dir, remote_host, profile, sources, start_date=None, first='ip/bytes', second='ip/bytes', number=5):
     if start_date is None:
         start_date = parse("")
     d=pynfdump.Dumper(data_dir, profile, sources, remote_host)
@@ -24,12 +24,13 @@ def show_top(data_dir, remote_host, profile, sources, start_date=None, first='ip
     second_q = "%s %%s" % stat_to_query.get(s, s)
 
     print "%-19s %-10s %-10s %-10s" % ('ip','flows','packets','bytes')
-    for tt in d.search('',statistics=s,statistics_order=so, limit=5):
+    for tt in d.search('',statistics=s,statistics_order=so, limit=number):
         tt['whatever'] = tt[s]
         print "%(whatever)-19s %(flows)-10s %(packets)-10s %(bytes)-10s" % tt
-        for (x,r) in enumerate(d.search(second_q % tt[s], statistics=s2,statistics_order=s2o, limit=4)):
-            if x==0 and first==second: continue
-            print "    %(ip)-15s %(flows)-10s %(packets)-10s %(bytes)-10s" % r
+        for (x,r) in enumerate(d.search(second_q % tt[s], statistics=s2,statistics_order=s2o, limit=number)):
+            r['whatever'] = r[s2]
+            if x==0 and s == s2: continue
+            print "    %(whatever)-15s %(flows)-10s %(packets)-10s %(bytes)-10s" % r
             
 def main():
     import sys
@@ -40,6 +41,7 @@ def main():
     parser.add_option("-r", "--remote",    dest="remote",     action="store", help="remote host")
     parser.add_option("-p", "--profile",   dest="profile",    action="store", help="profile", default="live")
     parser.add_option("-o", "--source",    dest="sources",    action="append", help="source")
+    parser.add_option("-n", "--number",    dest="number",     action="store", help="number of top talkers", default=5)
     parser.add_option('',"--fs",           dest="first",      action="store", help="first statistic", default="ip/bytes")
     parser.add_option('',"--ss",           dest="second",     action="store", help="second statistic", default="ip/bytes")
 
@@ -54,7 +56,7 @@ def main():
         pass
 
     o = options
-    show_top(o.dir, o.remote, o.profile, o.sources, o.start_date, o.first, o.second)
+    show_top(o.dir, o.remote, o.profile, o.sources, o.start_date, o.first, o.second, o.number)
 
 if __name__ == "__main__":
     main()
