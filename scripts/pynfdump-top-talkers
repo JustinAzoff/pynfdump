@@ -8,17 +8,27 @@
 from dateutil.parser import parse
 import pynfdump
 
-def show_top(data_dir, remote_host, profile, sources, start_date=None):
+stat_to_query = {
+    'ip': 'host'
+}
+
+def show_top(data_dir, remote_host, profile, sources, start_date=None, first='ip/bytes', second='ip/bytes'):
     if start_date is None:
         start_date = parse("")
     d=pynfdump.Dumper(data_dir, profile, sources, remote_host)
     d.set_where(start_date)
 
+    s, so = first.split("/")
+    s2, s2o = second.split("/")
+
+    second_q = "%s %%s" % stat_to_query.get(s, s)
+
     print "%-19s %-10s %-10s %-10s" % ('ip','flows','packets','bytes')
-    for tt in d.search('',statistics='ip',statistics_order='bytes', limit=5):
-        print "%(ip)-19s %(flows)-10s %(packets)-10s %(bytes)-10s" % tt
-        for (x,r) in enumerate(d.search('host %s' % tt['ip'], statistics='ip',statistics_order='bytes', limit=4)):
-            if x==0: continue
+    for tt in d.search('',statistics=s,statistics_order=so, limit=5):
+        tt['whatever'] = tt[s]
+        print "%(whatever)-19s %(flows)-10s %(packets)-10s %(bytes)-10s" % tt
+        for (x,r) in enumerate(d.search(second_q % tt[s], statistics=s2,statistics_order=s2o, limit=4)):
+            if x==0 and first==second: continue
             print "    %(ip)-15s %(flows)-10s %(packets)-10s %(bytes)-10s" % r
             
 def main():
@@ -30,6 +40,8 @@ def main():
     parser.add_option("-r", "--remote",    dest="remote",     action="store", help="remote host")
     parser.add_option("-p", "--profile",   dest="profile",    action="store", help="profile", default="live")
     parser.add_option("-o", "--source",    dest="sources",    action="append", help="source")
+    parser.add_option('',"--fs",           dest="first",      action="store", help="first statistic", default="ip/bytes")
+    parser.add_option('',"--ss",           dest="second",     action="store", help="second statistic", default="ip/bytes")
 
     (options, args) = parser.parse_args()
 
@@ -41,7 +53,8 @@ def main():
     if 1:
         pass
 
-    show_top(options.dir, options.remote, options.profile, options.sources, options.start_date)
+    o = options
+    show_top(o.dir, o.remote, o.profile, o.sources, o.start_date, o.first, o.second)
 
 if __name__ == "__main__":
     main()
