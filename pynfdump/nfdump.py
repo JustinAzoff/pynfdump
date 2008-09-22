@@ -122,7 +122,7 @@ class Dumper:
             if self.datadir and self.sources and self.profile:
                 sources = ':'.join(self.sources)
                 d = os.path.join(self.datadir, self.profile, sources)
-                cmd.extend('-M', d)
+                cmd.extend(['-M', d])
             cmd.extend(['-R', self._where])
 
 
