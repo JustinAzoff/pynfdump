@@ -171,7 +171,7 @@ class Dumper:
                 #'msec_first':   parts[2],
                 'last':         fromtimestamp(parts[3]),
                 #'msec_last':    parts[4],
-                'prot':         parts[5],
+                'prot':         self.protocols.get(parts[5]),
                 #'sa0':          parts[6],
                 #'sa1':          parts[7],
                 #'sa2':          parts[8],
