@@ -19,11 +19,25 @@ from IPy import IP
 
 FILE_FMT = "%Y %m %d %H %M".replace(" ","")
 
+def load_protocols():
+    #2.4 doesn't have socket.getprotocol by id
+    f = open("/etc/protocols")
+    protocols = {}
+    for line in f:
+        if not line.strip():
+            break
+    for line in f:
+        if not line.strip(): break
+        proto, num,_ = line.split(None,2)
+        protocols[int(num)] = proto
+    f.close()
+    return protocols
+
 def date_to_fn(date):
     return 'nfcapd.' + date.strftime(FILE_FMT)
 
 def run(cmds):
-    #print ' '.join(cmds)
+    print (cmds)
     output = Popen(cmds, stdout=PIPE,stderr=PIPE).communicate()
     return output
 
@@ -40,7 +54,7 @@ class NFDumpError(Exception):
     pass
 
 class Dumper:
-    def __init__(self, datadir, profile='live',sources=None,remote_host=None):
+    def __init__(self, datadir='/', profile='live',sources=None,remote_host=None):
         if not datadir.endswith("/"):
             datadir = datadir + '/'
         self.datadir = datadir
@@ -48,8 +62,9 @@ class Dumper:
         self.sources = sources
         self.remote_host = remote_host
         self.set_where()
+        self.protocols = load_protocols()
 
-    def set_where(self, start=None, end=None,stdin=False):
+    def set_where(self, start=None, end=None, filename=None,dirfiles=None, stdin=False):
         """Set the timeframe of the nfdump query
            Specify just the start date or both the start and end date
         """
@@ -71,7 +86,12 @@ class Dumper:
             if self.ed:
                 self._where += ":" + date_to_fn(self.ed)
 
-        self.stdin = stdin
+        if dirfiles:
+            self._where = dirfiles
+
+        self.filename = filename
+        if stdin:
+            self.filename = '-'
 
     def make_query(self, q):
         if self.remote_host:
@@ -79,12 +99,14 @@ class Dumper:
         else:
             return q
 
-    def search(self, query, aggregate=None, statistics=None, statistics_order=None,limit=None):
+    def search(self, query='', aggregate=None, statistics=None, statistics_order=None,limit=None):
         """Run nfdump with the following arguments:
             * aggregate: (True OR comma sep string OR list) of 'srcip dstip srcport dstport'
             * statistics Generate netflow statistics info
-            * statistics_order: one of srcip, dstip, ip, srcport, dstport, port
-                                       srcas, dstas, as, inif , outif, proto
+                                one of srcip, dstip, ip, srcport, dstport, port
+                                srcas, dstas, as, inif , outif, proto
+            * statistics_order one of:
+                packets, bytes, flows, bps pps and bpp.
             * limit number of results
         """
 
@@ -92,13 +114,16 @@ class Dumper:
         cmd = []
         if self.remote_host:
             cmd = ['ssh', self.remote_host]
+        cmd.extend(['nfdump', '-o', 'pipe', self.make_query(query)])
 
-        if self.stdin:
-            cmd.extend(['nfdump', '-o','pipe', '-r', '-', self.make_query(query)])
+        if self.filename:
+            cmd.extend(['-r', self.filename])
         else:
-            sources = ':'.join(self.sources)
-            d = os.path.join(self.datadir, self.profile, sources)
-            cmd.extend(['nfdump', '-o','pipe', '-M', d, '-R', self._where, self.make_query(query)])
+            if self.datadir and self.sources and self.profile:
+                sources = ':'.join(self.sources)
+                d = os.path.join(self.datadir, self.profile, sources)
+                cmd.extend('-M', d)
+            cmd.extend(['-R', self._where])
 
 
         if aggregate and statistics:
@@ -185,7 +210,7 @@ class Dumper:
                 #'msec_first':   parts[2],
                 'last':         fromtimestamp(parts[3]),
                 #'msec_last':    parts[4],
-                'prot':         parts[5],
+                'prot':         self.protocols.get(parts[5]),
                 object_field:   parts[object_idx],
                 'flows':        parts[object_idx+1],
                 'packets':      parts[object_idx+2],
@@ -234,3 +259,8 @@ class Dumper:
         if sourcelist:
             ret['sourcelist'] = sourcelist
         return ret
+
+def search_file(filename, query='', aggregate=None, statistics=None, statistics_order=None,limit=None):
+    d = Dumper()
+    d.set_where(filename=filename)
+    return d.search(query, aggregate, statistics, statistics_order, limit)
