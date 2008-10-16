@@ -55,7 +55,7 @@ def main():
         sys.exit(1)
 
     if options.file:
-        export_file(options.file)
+        return export_file(options.file)
 
     o = options
     export(o.dir, o.remote, o.profile, o.sources, o.start_date, o.end_date, o.query)
