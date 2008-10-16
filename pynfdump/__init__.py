@@ -1,1 +1,1 @@
-from nfdump import Dumper, NFDumpError
+from nfdump import Dumper, NFDumpError, search_file
