@@ -37,7 +37,7 @@ def date_to_fn(date):
     return 'nfcapd.' + date.strftime(FILE_FMT)
 
 def run(cmds):
-    print (cmds)
+    #print (cmds)
     output = Popen(cmds, stdout=PIPE,stderr=PIPE).communicate()
     return output
 
