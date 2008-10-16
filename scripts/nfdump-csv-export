@@ -1,0 +1,64 @@
+#!/usr/bin/env python
+# pynfdump-top-talkers
+# Copyright (C) 2008 Justin Azoff JAzoff@uamail.albany.edu
+#
+# This module is released under the MIT License:
+# http://www.opensource.org/licenses/mit-license.php
+
+from dateutil.parser import parse
+import pynfdump
+
+import sys
+import csv
+
+
+cols = 'first src srcport dst dstport prot packets bytes flags'.split()
+def export(data_dir, remote_host, profile, sources, start_date=None, end_date=None, query=''):
+    if start_date is None:
+        start_date = parse("")
+    d=pynfdump.Dumper(data_dir, profile, sources, remote_host)
+    d.set_where(start_date,end_date)
+
+    result = d.search(query)
+    do_export(result)
+
+def export_file(fn):
+    result = pynfdump.search_file(fn)
+    do_export(result)
+
+def do_export(result):
+    w = csv.writer(sys.stdout)
+    w.writerow(cols)
+    for rec in result:
+        row = [rec.get(c) for c in cols]
+        w.writerow(row)
+
+
+def main():
+    import sys
+    from optparse import OptionParser
+    parser = OptionParser()
+    parser.add_option("-s", "--startdate", dest="start_date", action="store", help="start date")
+    parser.add_option("-e", "--enddate",   dest="end_date",   action="store", help="end date")
+    parser.add_option("-d", "--datadir",   dest="dir",        action="store", help="data directory")
+    parser.add_option("-r", "--remote",    dest="remote",     action="store", help="remote host")
+    parser.add_option("-p", "--profile",   dest="profile",    action="store", help="profile", default="live")
+    parser.add_option("-o", "--source",    dest="sources",    action="append", help="source")
+    parser.add_option("-q", "--query",     dest="query",      action="store", help="query", default="")
+    parser.add_option("-f", "--file",      dest="file",       action="store", help="single file")
+
+    (options, args) = parser.parse_args()
+
+    if not ((options.dir and options.sources) or options.file):
+        sys.stderr.write("Specify (a datadir and a source) or a file\n")
+        parser.print_help()
+        sys.exit(1)
+
+    if options.file:
+        export_file(options.file)
+
+    o = options
+    export(o.dir, o.remote, o.profile, o.sources, o.start_date, o.end_date, o.query)
+
+if __name__ == "__main__":
+    main()
