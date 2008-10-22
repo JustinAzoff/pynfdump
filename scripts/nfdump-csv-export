@@ -38,14 +38,14 @@ def main():
     import sys
     from optparse import OptionParser
     parser = OptionParser()
-    parser.add_option("-s", "--startdate", dest="start_date", action="store", help="start date")
-    parser.add_option("-e", "--enddate",   dest="end_date",   action="store", help="end date")
-    parser.add_option("-d", "--datadir",   dest="dir",        action="store", help="data directory")
-    parser.add_option("-r", "--remote",    dest="remote",     action="store", help="remote host")
-    parser.add_option("-p", "--profile",   dest="profile",    action="store", help="profile", default="live")
+    parser.add_option("-s", "--startdate", dest="start_date", action="store",  help="start date")
+    parser.add_option("-e", "--enddate",   dest="end_date",   action="store",  help="end date")
+    parser.add_option("-d", "--datadir",   dest="dir",        action="store",  help="data directory")
+    parser.add_option("-r", "--remote",    dest="remote",     action="store",  help="remote host")
+    parser.add_option("-p", "--profile",   dest="profile",    action="store",  help="profile", default="live")
     parser.add_option("-o", "--source",    dest="sources",    action="append", help="source")
-    parser.add_option("-q", "--query",     dest="query",      action="store", help="query", default="")
-    parser.add_option("-f", "--file",      dest="file",       action="store", help="single file")
+    parser.add_option("-q", "--query",     dest="query",      action="store",  help="query", default="")
+    parser.add_option("-f", "--file",      dest="file",       action="store",  help="single file")
 
     (options, args) = parser.parse_args()
 

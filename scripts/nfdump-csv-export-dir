@@ -1,0 +1,59 @@
+#!/usr/bin/env python
+import os
+import sys
+import csv
+
+import pynfdump
+
+cols = 'first src srcport dst dstport prot packets bytes flags'.split()
+
+def export_file(source, dest):
+    result = pynfdump.search_file(source)
+
+    new = not os.path.exists(dest)
+
+    f = open(dest,'a')
+    w = csv.writer(f)
+
+    if new:
+        w.writerow(cols)
+
+    for rec in result:
+        row = [rec.get(c) for c in cols]
+        w.writerow(row)
+
+    f.close()
+
+def touch(fn):
+    f = open(fn,'w')
+    f.close()
+
+def fn_to_output(f):
+    "convert nfcapd.200810161045 into nfcapd.20081016.txt"
+    #    0123456789012345678
+    #f = nfcapd.200810161045
+    #o = nfcapd.20081016
+    o = f[:15] + '.txt'
+    return o
+
+def main(src, dst):
+    files = [x for x in os.listdir(src) if x.startswith("nfcapd.")]
+    for f in files:
+        sfd = os.path.join(dst, f + '.done')
+        if os.path.exists(sfd):
+            print 'skipping %s ...' % f
+            continue
+
+        print 'doing %s ...' % f
+        o = fn_to_output(f)
+        sf = os.path.join(src, f)
+        df = os.path.join(dst, o)
+        export_file(sf, df)
+        touch(sfd)
+
+if __name__ == "__main__":
+    if len(sys.argv) < 3:
+        print "Usage: %s source_dir dest_dir" % sys.argv[0]
+        sys.exit(1)
+
+    main(sys.argv[1], sys.argv[2])

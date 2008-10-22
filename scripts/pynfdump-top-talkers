@@ -8,11 +8,8 @@
 from dateutil.parser import parse
 import pynfdump
 
-stat_to_query = {
-    'ip': 'host'
-}
 
-def show_top(data_dir, remote_host, profile, sources, start_date=None, first='ip/bytes', second='ip/bytes', number=5):
+def show_top(data_dir, remote_host, profile, sources, start_date=None, first='ip/bytes', second='ip/bytes', number=5, query=''):
     if start_date is None:
         start_date = parse("")
     d=pynfdump.Dumper(data_dir, profile, sources, remote_host)
@@ -21,10 +18,10 @@ def show_top(data_dir, remote_host, profile, sources, start_date=None, first='ip
     s, so = first.split("/")
     s2, s2o = second.split("/")
 
-    second_q = "%s %%s" % stat_to_query.get(s, s)
+    second_q = "%s %s %s %%s" % (query, query and 'and', s)
 
     print "%-19s %-10s %-10s %-10s" % ('ip','flows','packets','bytes')
-    for tt in d.search('',statistics=s,statistics_order=so, limit=number):
+    for tt in d.search(query,statistics=s,statistics_order=so, limit=number):
         tt['whatever'] = tt[s]
         print "%(whatever)-19s %(flows)-10s %(packets)-10s %(bytes)-10s" % tt
         for (x,r) in enumerate(d.search(second_q % tt[s], statistics=s2,statistics_order=s2o, limit=number)):
@@ -42,6 +39,7 @@ def main():
     parser.add_option("-p", "--profile",   dest="profile",    action="store", help="profile", default="live")
     parser.add_option("-o", "--source",    dest="sources",    action="append", help="source")
     parser.add_option("-n", "--number",    dest="number",     action="store", help="number of top talkers", default=5)
+    parser.add_option("-q", "--query",     dest="query",      action="store", help="query", default="")
     parser.add_option('',"--fs",           dest="first",      action="store", help="first statistic", default="ip/bytes")
     parser.add_option('',"--ss",           dest="second",     action="store", help="second statistic", default="ip/bytes")
 
@@ -56,7 +54,7 @@ def main():
         pass
 
     o = options
-    show_top(o.dir, o.remote, o.profile, o.sources, o.start_date, o.first, o.second, o.number)
+    show_top(o.dir, o.remote, o.profile, o.sources, o.start_date, o.first, o.second, o.number, o.query)
 
 if __name__ == "__main__":
     main()
