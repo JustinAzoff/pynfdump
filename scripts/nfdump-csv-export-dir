@@ -20,11 +20,11 @@ def export_file(source, dest):
     if new:
         w.writerow(cols)
 
-    info = whois.lookup(str(c['src']))
-    rec['asn'] = info.asn
-    rec['cc']  = info.cc
 
     for rec in result:
+        info = whois.lookup(str(rec['src']))
+        rec['asn'] = info.asn
+        rec['cc']  = info.cc
         row = [rec.get(c) for c in cols]
         w.writerow(row)
 
