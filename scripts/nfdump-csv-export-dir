@@ -4,11 +4,13 @@ import sys
 import csv
 
 import pynfdump
+import cymruwhois
 
-cols = 'first src srcport dst dstport prot packets bytes flags'.split()
+cols = 'first src srcport dst dstport prot packets bytes flags asn cc'.split()
 
 def export_file(source, dest):
-    result = pynfdump.search_file(source)
+    whois = cymruwhois.Client(memcache_host='lois:11211')
+    result = pynfdump.search_file(source, 'not src net 169.226.0.0/16')
 
     new = not os.path.exists(dest)
 
@@ -17,6 +19,10 @@ def export_file(source, dest):
 
     if new:
         w.writerow(cols)
+
+    info = whois.lookup(str(c['src']))
+    rec['asn'] = info.asn
+    rec['cc']  = info.cc
 
     for rec in result:
         row = [rec.get(c) for c in cols]
@@ -39,7 +45,7 @@ def fn_to_output(f):
 def main(src, dst):
     files = [x for x in os.listdir(src) if x.startswith("nfcapd.")]
     for f in files:
-        sfd = os.path.join(dst, f + '.done')
+        sfd = os.path.join(dst, 'done',f + '.done')
         if os.path.exists(sfd):
             print 'skipping %s ...' % f
             continue
