@@ -7,9 +7,9 @@ import pynfdump
 import cymruwhois
 
 cols = 'first src srcport dst dstport prot packets bytes flags asn cc'.split()
+whois = cymruwhois.Client(memcache_host='lois:11211')
 
 def export_file(source, dest):
-    whois = cymruwhois.Client(memcache_host='lois:11211')
     result = pynfdump.search_file(source, 'not src net 169.226.0.0/16')
 
     new = not os.path.exists(dest)
