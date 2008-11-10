@@ -9,6 +9,15 @@ import cymruwhois
 cols = 'first src srcport dst dstport prot packets bytes flags asn cc'.split()
 whois = cymruwhois.Client(memcache_host='lois:11211')
 
+def get_info(ip,info_cache={}):
+    r = info_cache.get(ip)
+    if r:
+        return r
+    info = whois.lookup(ip)
+    info_cache[ip]=info
+    return info
+    
+
 def export_file(source, dest):
     result = pynfdump.search_file(source, 'not src net 169.226.0.0/16')
 
@@ -22,7 +31,7 @@ def export_file(source, dest):
 
 
     for rec in result:
-        info = whois.lookup(str(rec['src']))
+        info = get_info(str(rec['src']))
         rec['asn'] = info.asn
         rec['cc']  = info.cc
         row = [rec.get(c) for c in cols]
