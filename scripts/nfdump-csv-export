@@ -28,7 +28,7 @@ def export_file(fn):
 
 def do_export(result):
     w = csv.writer(sys.stdout)
-    w.writerow(cols)
+    #w.writerow(cols)
     for rec in result:
         row = [rec.get(c) for c in cols]
         w.writerow(row)

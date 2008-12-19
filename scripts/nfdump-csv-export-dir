@@ -26,8 +26,8 @@ def export_file(source, dest):
     f = open(dest,'a')
     w = csv.writer(f)
 
-    if new:
-        w.writerow(cols)
+    #if new:
+    #    w.writerow(cols)
 
 
     for rec in result:
