@@ -53,17 +53,17 @@ def fn_to_output(f):
 
 def main(src, dst):
     files = [x for x in os.listdir(src) if x.startswith("nfcapd.")]
+    done = set(os.listdir(os.path.join(dst, 'done')))
     for f in files:
-        sfd = os.path.join(dst, 'done',f + '.done')
-        if os.path.exists(sfd):
-            print 'skipping %s ...' % f
+        if (f + '.done') in done:
             continue
-
         print 'doing %s ...' % f
         o = fn_to_output(f)
         sf = os.path.join(src, f)
         df = os.path.join(dst, o)
         export_file(sf, df)
+
+        sfd = os.path.join(dst, 'done',f + '.done')
         touch(sfd)
 
 if __name__ == "__main__":
