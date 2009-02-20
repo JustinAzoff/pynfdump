@@ -1,11 +1,20 @@
 Metadata-Version: 1.0
 Name: pynfdump
-Version: 0.1dev-r4486
+Version: 0.2dev-r5042
 Summary: python interface to nfdump
 Home-page: UNKNOWN
 Author: Justin Azoff
 Author-email: JAzoff@uamail.albany.edu
-License: LGPL
-Description: \
+License: MIT
+Description: pynfdump is a frontend to the nfdump CLI app
+        It supports normal, aggregation, and statistics modes.
+        It supports running nfdump on a remote host via ssh.
+        
 Keywords: nfdump netflow
 Platform: UNKNOWN
+Classifier: Topic :: System :: Networking
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python
+Classifier: Development Status :: 3 - Alpha
