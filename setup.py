@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import sys, os
 from glob import glob
 
-version = '0.1'
+version = '0.2'
 
 setup(name='pynfdump',
     version=version,
@@ -24,7 +24,7 @@ It supports running nfdump on a remote host via ssh.
     author='Justin Azoff',
     author_email='JAzoff@uamail.albany.edu',
     url='',
-    license='LGPL',
+    license='MIT',
     packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
     include_package_data=True,
     zip_safe=True,
