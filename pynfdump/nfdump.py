@@ -30,6 +30,7 @@ def load_protocols():
         if not line.strip(): break
         proto, num,_ = line.split(None,2)
         protocols[int(num)] = proto
+    protocols[0]='ip'
     f.close()
     return protocols
 
@@ -160,6 +161,12 @@ class Dumper:
             return self.parse_search(out)
 
     def parse_search(self, out):
+        #    snprintf(data_string, STRINGSIZE-1 ,"%i|%u|%u|%u|%u|%u|%u|%u|%u|%u|%u|%u|%u|%u|%u|%u|%u|%u|%u|%u|%u|%u|%llu|%llu",
+        #                0 af, 1 r->first, 2 r->msec_first ,3 r->last, 4 r->msec_last, 5 r->prot,
+        #                6 sa[0], 7 sa[1], 8 sa[2], 9 sa[3], 10 r->srcport, 11 da[0], 12 da[1], 13 da[2], 14 da[3], 15 r->dstport,
+        #                16 r->srcas, 17 r->dstas, 18 r->input, 19 r->output,
+        #                20 r->tcp_flags, 21 r->tos, 22 (unsigned long long)r->dPkts, 23 (unsigned long long)r->dOctets);
+
         for line in out:
             parts = line.split("|")
             parts = [maybe_int(x) for x in parts]
@@ -175,12 +182,12 @@ class Dumper:
                 #'sa0':          parts[6],
                 #'sa1':          parts[7],
                 #'sa2':          parts[8],
-                'src':          IP(parts[9]),
+                'srcip':        IP(parts[9]),
                 'srcport':      parts[10],
                 #'da0':          parts[11],
                 #'da1':          parts[12],
                 #'da2':          parts[13],
-                'dst':          IP(parts[14]),
+                'dstip':          IP(parts[14]),
                 'dstport':      parts[15],
                 'srcas':        parts[16],
                 'dstas':        parts[17],

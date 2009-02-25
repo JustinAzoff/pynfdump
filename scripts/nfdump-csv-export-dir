@@ -6,7 +6,7 @@ import csv
 import pynfdump
 import cymruwhois
 
-cols = 'first src srcport dst dstport prot packets bytes flags asn cc'.split()
+cols = 'first srcip srcport dstip dstport prot packets bytes flags asn cc'.split()
 whois = cymruwhois.Client(memcache_host='lois:11211')
 
 def get_info(ip,info_cache={}):
@@ -31,7 +31,7 @@ def export_file(source, dest):
 
 
     for rec in result:
-        info = get_info(str(rec['src']))
+        info = get_info(str(rec['srcip']))
         rec['asn'] = info.asn
         rec['cc']  = info.cc
         row = [rec.get(c) for c in cols]
