@@ -115,7 +115,7 @@ class Dumper:
         cmd = []
         if self.remote_host:
             cmd = ['ssh', self.remote_host]
-        cmd.extend(['nfdump', '-o', 'pipe', self.make_query(query)])
+        cmd.extend(['nfdump', '-q', '-o', 'pipe', self.make_query(query)])
 
         if self.filename:
             cmd.extend(['-r', self.filename])
@@ -169,7 +169,7 @@ class Dumper:
 
         for line in out:
             parts = line.split("|")
-            parts = [maybe_int(x) for x in parts]
+            parts = [int(x) for x in parts]
             if not len(parts) > 20:
                 continue
             row = {
