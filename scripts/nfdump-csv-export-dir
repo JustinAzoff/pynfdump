@@ -21,7 +21,8 @@ def get_info(ip,info_cache={}):
 def export_file(source, dest):
     try :
         result = pynfdump.search_file(source, 'not src net 169.226.0.0/16')
-    except:
+    except Exception, e:
+        print e
         return
 
     new = not os.path.exists(dest)
