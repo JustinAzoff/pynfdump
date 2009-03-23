@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import sys, os
 from glob import glob
 
-version = '0.2'
+version = '0.3'
 
 setup(name='pynfdump',
     version=version,
@@ -23,7 +23,8 @@ It supports running nfdump on a remote host via ssh.
     keywords='nfdump netflow',
     author='Justin Azoff',
     author_email='JAzoff@uamail.albany.edu',
-    url='',
+    url='http://packages.python.org/pynfdump',
+    download_url="http://github.com/JustinAzoff/pynfdump/tree/master",
     license='MIT',
     packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
     include_package_data=True,

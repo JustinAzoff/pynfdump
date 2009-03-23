@@ -4,11 +4,18 @@
 
 Welcome to pynfdump's documentation!
 ====================================
+pynfdump is a wrapper around the `NFDUMP <http://nfdump.sourceforge.net/>`_ program.
+
+It supports normal, aggregation, and statistics modes.
+It supports running nfdump on a remote host via ssh.
 
 Contents:
 
 .. toctree::
    :maxdepth: 2
+
+   usage
+   api
 
 Indices and tables
 ==================

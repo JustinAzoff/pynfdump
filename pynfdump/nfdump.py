@@ -66,8 +66,18 @@ class Dumper:
         self.protocols = load_protocols()
 
     def set_where(self, start=None, end=None, filename=None,dirfiles=None, stdin=False):
-        """Set the timeframe of the nfdump query
-           Specify just the start date or both the start and end date
+        """Set the timeframe of the nfdump query.
+        Specify one of the following:
+
+            * The start date
+            * The start and end date
+            * one of the filename,dirfiles, or stdin options
+
+        :param start: Start date and time
+        :param end: Start date and time
+        :param filename: Search this single filename
+        :param dirfiles: Search this directory
+        :param stdin:    Search stdin
         """
         
         self.start = start
@@ -95,22 +105,49 @@ class Dumper:
             self.filename = '-'
 
     def _arg_escape(self, arg):
+        """Escape any arguments so that they can be passed over SSH"""
         if self.remote_host:
             return commands.mkarg(arg)
         else:
             return arg
 
     def search(self, query='', aggregate=None, statistics=None, statistics_order=None,limit=None):
-        """Run nfdump with the following arguments:
-            * aggregate: (True OR comma sep string OR list) of 'srcip dstip srcport dstport'
-            * statistics Generate netflow statistics info
-                                one of srcip, dstip, ip, srcport, dstport, port
-                                srcas, dstas, as, inif , outif, proto
-            * statistics_order one of:
-                packets, bytes, flows, bps pps and bpp.
-            * limit number of results
-        """
+        """Run nfdump with the following arguments
 
+        :param query: The nfdump filter
+        :param aggregate: (True OR comma sep string OR list) of
+
+            * srcip     - Source IP Address
+            * dstip     - Destination IP Address
+            * srcport   - Source Port
+            * dstport   - Destination Port
+
+        :param statistics: Generate netflow statistics info, one of
+
+            * srcip     - Source IP Address
+            * dstip     - Destination IP Address
+            * ip        - Any IP Address
+            * srcport   - Source Port
+            * dstport   - Destination Port
+            * port      - Any Port
+            * srcas     - Source ASN
+            * dstas     - Destination ASN
+            * as        - Any ASN
+            * inif      - Incoming Interface
+            * outif     - Outgoing Interface
+            * proto     - Protocol
+
+        :param statistics_order: one of
+
+            * packets
+            * bytes
+            * flows
+            * bps       - Bytes Per Second
+            * pps       - Packers Per Second
+            * bpp.      - Bytes Per Packet
+
+        :param limit: number of results
+        """
 
         cmd = []
         if self.remote_host:
@@ -269,6 +306,13 @@ class Dumper:
         return ret
 
 def search_file(filename, query='', aggregate=None, statistics=None, statistics_order=None,limit=None):
+    """Search a single nfcapd file
+
+    :param filename: the file to search
+
+    The rest of the options are passed directly to :func:`Dumper.search`
+    """
+
     d = Dumper()
     d.set_where(filename=filename)
     return d.search(query, aggregate, statistics, statistics_order, limit)
