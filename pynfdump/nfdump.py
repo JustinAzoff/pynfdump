@@ -94,11 +94,11 @@ class Dumper:
         if stdin:
             self.filename = '-'
 
-    def make_query(self, q):
+    def _arg_escape(self, arg):
         if self.remote_host:
-            return commands.mkarg(q)
+            return commands.mkarg(arg)
         else:
-            return q
+            return arg
 
     def search(self, query='', aggregate=None, statistics=None, statistics_order=None,limit=None):
         """Run nfdump with the following arguments:
@@ -115,7 +115,7 @@ class Dumper:
         cmd = []
         if self.remote_host:
             cmd = ['ssh', self.remote_host]
-        cmd.extend(['nfdump', '-q', '-o', 'pipe', self.make_query(query)])
+        cmd.extend(['nfdump', '-q', '-o', 'pipe', self._arg_escape(query)])
 
         if self.filename:
             cmd.extend(['-r', self.filename])
@@ -143,7 +143,7 @@ class Dumper:
             else:
                 if ',' not in aggregate:
                     aggregate = ','.join(aggregate)
-                cmd.extend(["-a", "-A", aggregate])
+                cmd.extend(["-a", "-A", self._arg_escape(aggregate)])
 
         if limit:
             if statistics:
