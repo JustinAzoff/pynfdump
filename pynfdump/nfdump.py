@@ -143,6 +143,7 @@ class Dumper:
             else:
                 if ',' not in aggregate:
                     aggregate = ','.join(aggregate)
+                aggregate = aggregate.replace(" ","")
                 cmd.extend(["-a", "-A", self._arg_escape(aggregate)])
 
         if limit:
