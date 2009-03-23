@@ -5,7 +5,7 @@ The two main user facing functions of the Dumper class are
 :func:`pynfdump.nfdump.Dumper.set_where` which sets the time frame of the search, and 
 :func:`pynfdump.nfdump.Dumper.search` which does the actual searching.
 
-Basic
+Basic search
 ------------
 
 Lets search for any traffic going to a single IP address:::
@@ -58,3 +58,28 @@ top three ports ordered by bytes::
     1935 2466061151
 
 
+
+Profile inspection
+------------------
+
+You can list profiles, and get information about profiles::
+    >>> d.list_profiles()
+    ['live', ...]
+
+    >>> import pprint
+    >>> pprint.pprint(d.get_profile_data("live"))
+    {'expire': 0,
+     'group': '.',
+     'locked': 0,
+     'maxsize': 45097156608L,
+     'name': 'live',
+     'size': 40675028992L,
+     'sourcelist': ['resnet', 'span', 'podium'],
+     'status': 'OK',
+     'tbegin': 0,
+     'tcreate': 0,
+     'tend': 1237825800,
+     'tstart': 1235390700,
+     'type': 0,
+     'updated': 1237825800,
+     'version': 130}
