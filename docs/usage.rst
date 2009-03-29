@@ -63,6 +63,7 @@ Profile inspection
 ------------------
 
 You can list profiles, and get information about profiles::
+
     >>> d.list_profiles()
     ['live', ...]
 
