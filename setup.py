@@ -30,7 +30,7 @@ It supports running nfdump on a remote host via ssh.
     include_package_data=True,
     zip_safe=True,
     install_requires=[
-        "dateutil",
+        "python-dateutil",
         "IPy",
     ],
     scripts=glob('scripts/*'),
