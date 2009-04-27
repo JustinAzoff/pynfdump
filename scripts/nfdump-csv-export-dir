@@ -43,8 +43,9 @@ def export_file(source, dest):
 
     f.close()
 
-def touch(fn):
-    f = open(fn,'w')
+def touch(done_filename, fn):
+    f = open(done_filename,'a')
+    f.write(fn + "\n")
     f.close()
 
 def fn_to_output(f):
@@ -56,10 +57,11 @@ def fn_to_output(f):
     return o
 
 def main(src, dst):
+    done_filename = os.path.join(dst, "done", "all.txt")
     files = [x for x in os.listdir(src) if x.startswith("nfcapd.")]
-    done = set(os.listdir(os.path.join(dst, 'done')))
+    done = set(l.strip() for l in open(done_filename))
     for f in files:
-        if (f + '.done') in done:
+        if f in done:
             continue
         print 'doing %s ...' % f
         o = fn_to_output(f)
@@ -67,8 +69,7 @@ def main(src, dst):
         df = os.path.join(dst, o)
         export_file(sf, df)
 
-        sfd = os.path.join(dst, 'done',f + '.done')
-        touch(sfd)
+        touch(done_filename, f)
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
