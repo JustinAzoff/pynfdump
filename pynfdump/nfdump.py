@@ -13,6 +13,7 @@ import datetime
 fromtimestamp = datetime.datetime.fromtimestamp
 
 from subprocess import Popen, PIPE
+import select
 import commands
 
 from IPy import IP
@@ -37,10 +38,42 @@ def load_protocols():
 def date_to_fn(date):
     return 'nfcapd.' + date.strftime(FILE_FMT)
 
+STDOUT = 1
+STDERR = 2
+def mycommunicate(cmds):
+    pipe = Popen(cmds, stdout=PIPE,stderr=PIPE)
+    read_set = [pipe.stderr, pipe.stdout]
+
+    #from the subprocess module
+    try :
+        while read_set:
+            rlist, wlist, xlist = select.select(read_set, [], [])
+
+            if pipe.stdout in rlist:
+                data = pipe.stdout.readline()
+                if data == "":
+                    pipe.stdout.close()
+                    read_set.remove(pipe.stdout)
+                else:
+                    yield STDOUT, data
+
+            if pipe.stderr in rlist:
+                data = os.read(pipe.stderr.fileno(), 1024)
+                if data == "":
+                    pipe.stderr.close()
+                    read_set.remove(pipe.stderr)
+                else:
+                    yield STDERR, data
+    finally:
+        pipe.wait()
+
 def run(cmds):
     #print (cmds)
-    output = Popen(cmds, stdout=PIPE,stderr=PIPE).communicate()
-    return output
+    for fd, data in mycommunicate(cmds):
+        if fd == STDERR:
+            raise NFDumpError(data)
+        else:
+            yield data
 
 def maybe_int(val):
     try:
@@ -189,10 +222,7 @@ class Dumper:
             else:
                 cmd.extend(['-c',str(limit)])
 
-        out,err = run(cmd)
-        out = out.splitlines()
-        if err:
-            raise NFDumpError(err)
+        out = run(cmd)
         if statistics:
             return self.parse_stats(out, object_field=statistics)
         else:
