@@ -1,0 +1,9 @@
+Release 0.4 (in development)
+============================
+
+* Don't buffer the entire output of the nfdump command in memory
+
+Release 0 through 0.3 (Mar 23, 2009)
+====================================
+
+* Initial development and first public releases.

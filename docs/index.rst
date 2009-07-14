@@ -17,6 +17,7 @@ Contents:
    usage
    api
    download
+   changes
 
 Indices and tables
 ==================
