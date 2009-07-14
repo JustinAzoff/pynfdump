@@ -1,0 +1,14 @@
+include README
+include LICENSE
+include AUTHORS
+include CHANGES
+include EXAMPLES
+include TODO
+
+include build.sh
+
+recursive-include tests *
+
+recursive-include docs *
+prune docs/_build
+prune docs/doctrees
