@@ -33,7 +33,7 @@ It supports running nfdump on a remote host via ssh.
         "python-dateutil",
         "IPy",
     ],
-    tests_requires=[ "nose" ],
+    tests_require=[ "nose" ],
     extras_require = {
         'docs' : ['sphinx'],
     },
