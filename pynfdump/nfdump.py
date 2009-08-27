@@ -44,6 +44,8 @@ def mycommunicate(cmds):
     pipe = Popen(cmds, stdout=PIPE,stderr=PIPE)
     read_set = [pipe.stderr, pipe.stdout]
 
+    waited = False
+
     #from the subprocess module
     try :
         while read_set:
@@ -64,7 +66,12 @@ def mycommunicate(cmds):
                     read_set.remove(pipe.stderr)
                 else:
                     yield STDERR, data
-    finally:
+    #work around python2.4 issue:
+    #SyntaxError: 'yield' not allowed in a 'try' block with a 'finally' clause 
+    except:
+        pipe.wait()
+        waited = True
+    if not waited:
         pipe.wait()
 
 def run(cmds):
