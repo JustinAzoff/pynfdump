@@ -13,22 +13,26 @@ import csv
 
 
 cols = 'first srcip srcport dstip dstport prot packets bytes flags'.split()
-def export(data_dir, remote_host, profile, sources, start_date=None, end_date=None, query=''):
+def export(data_dir, remote_host, profile, sources, start_date=None, end_date=None, query='', filter=None, include_header=False):
     if start_date is None:
         start_date = parse("")
     d=pynfdump.Dumper(data_dir, profile, sources, remote_host)
     d.set_where(start_date,end_date)
 
-    result = d.search(query)
-    do_export(result)
+    if filter:
+        result = d.search(filterfile=filter)
+    else:
+        result = d.search(query)
+    do_export(result, include_header)
 
-def export_file(fn):
+def export_file(fn, include_header=False):
     result = pynfdump.search_file(fn)
-    do_export(result)
+    do_export(result, include_header)
 
-def do_export(result):
+def do_export(result, include_header=False):
     w = csv.writer(sys.stdout)
-    #w.writerow(cols)
+    if include_header:
+        w.writerow(cols)
     for rec in result:
         row = [rec.get(c) for c in cols]
         w.writerow(row)
@@ -46,6 +50,8 @@ def main():
     parser.add_option("-o", "--source",    dest="sources",    action="append", help="source")
     parser.add_option("-q", "--query",     dest="query",      action="store",  help="query", default="")
     parser.add_option("-f", "--file",      dest="file",       action="store",  help="single file")
+    parser.add_option("-i", "--filter",    dest="filter",     action="store",  help="filter file")
+    parser.add_option(      "--header",    dest="header",     action="store_true",  help="include csv header", default=False)
 
     (options, args) = parser.parse_args()
 
@@ -54,11 +60,11 @@ def main():
         parser.print_help()
         sys.exit(1)
 
-    if options.file:
-        return export_file(options.file)
-
     o = options
-    export(o.dir, o.remote, o.profile, o.sources, o.start_date, o.end_date, o.query)
+    if o.file:
+        return export_file(o.file, o.header)
+
+    export(o.dir, o.remote, o.profile, o.sources, o.start_date, o.end_date, o.query, o.filter, o.header)
 
 if __name__ == "__main__":
     main()
