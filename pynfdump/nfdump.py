@@ -347,7 +347,7 @@ class Dumper:
             ret['sourcelist'] = sourcelist
         return ret
 
-def search_file(filename, query='', aggregate=None, statistics=None, statistics_order=None,limit=None):
+def search_file(filename, query='', filterfile=None, aggregate=None, statistics=None, statistics_order=None,limit=None):
     """Search a single nfcapd file
 
     :param filename: the file to search
@@ -357,4 +357,4 @@ def search_file(filename, query='', aggregate=None, statistics=None, statistics_
 
     d = Dumper()
     d.set_where(filename=filename)
-    return d.search(query, aggregate, statistics, statistics_order, limit)
+    return d.search(query, filterfile, aggregate, statistics, statistics_order, limit)
