@@ -151,10 +151,11 @@ class Dumper:
         else:
             return arg
 
-    def search(self, query='', aggregate=None, statistics=None, statistics_order=None,limit=None):
+    def search(self, query='', filterfile=None, aggregate=None, statistics=None, statistics_order=None,limit=None):
         """Run nfdump with the following arguments
 
         :param query: The nfdump filter
+        :param filterfile: an optional file containing a nfdump filter
         :param aggregate: (True OR comma sep string OR list) of
 
             * srcip     - Source IP Address
@@ -192,7 +193,11 @@ class Dumper:
         cmd = []
         if self.remote_host:
             cmd = ['ssh', self.remote_host]
-        cmd.extend(['nfdump', '-q', '-o', 'pipe', self._arg_escape(query)])
+        cmd.extend(['nfdump', '-q', '-o', 'pipe'])
+        if filterfile:
+            cmd.extend(['-f', filterfile])
+        else:
+            cmd.append(self._arg_escape(query))
 
         if self.filename:
             cmd.extend(['-r', self.filename])
