@@ -21,7 +21,7 @@ def export_file(outdir, fn, filter):
     if not result:
         return
 
-    out_file = datetime.datetime.now().strftime("%Y-%m-%d.csv")
+    out_file = datetime.datetime.now().strftime("%Y-%m.csv")
     out_filename = os.path.join(outdir, out_file)
 
     new = not os.path.exists(out_filename)
