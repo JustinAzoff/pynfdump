@@ -1,0 +1,58 @@
+#!/usr/bin/env python
+# pynfdump-top-talkers
+# Copyright (C) 2008 Justin Azoff JAzoff@uamail.albany.edu
+#
+# This module is released under the MIT License:
+# http://www.opensource.org/licenses/mit-license.php
+
+import pynfdump
+
+import datetime
+import sys
+import csv
+import os
+
+
+cols = 'first srcip srcport dstip dstport prot packets bytes flags'.split()
+
+def export_file(outdir, fn, filter):
+    result = list(pynfdump.search_file(fn, filterfile=filter))
+
+    if not result:
+        return
+
+    out_file = datetime.datetime.now().strftime("%Y-%m-%d.csv")
+    out_filename = os.path.join(outdir, out_file)
+
+    new = not os.path.exists(out_filename)
+    f = open(out_filename, 'a')
+
+    w = csv.writer(f)
+    if new:
+        w.writerow(cols)
+    for rec in result:
+        row = [rec.get(c) for c in cols]
+        w.writerow(row)
+
+
+def main():
+    import sys
+    from optparse import OptionParser
+    parser = OptionParser()
+    parser.add_option("-i", "--filter",    dest="filter",     action="store",  help="filter file")
+    parser.add_option("-f", "--file",      dest="file",       action="store",  help="single file")
+    parser.add_option("-o", "--outdir",    dest="outdir",     action="store",  help="output directory")
+
+    (options, args) = parser.parse_args()
+
+    o = options
+
+    if not o.outdir or not o.file:
+        parser.print_help()
+        sys.exit(1)
+
+
+    return export_file(o.outdir, o.file, o.filter)
+
+if __name__ == "__main__":
+    main()
