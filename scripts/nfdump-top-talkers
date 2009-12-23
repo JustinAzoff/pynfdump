@@ -20,7 +20,7 @@ def show_top(data_dir, remote_host, profile, sources, start_date=None, first='ip
 
     second_q = "%s %s %s %%s" % (query, query and 'and', s)
 
-    print "%-19s %-10s %-10s %-10s" % ('ip','flows','packets','bytes')
+    print "%-19s %-10s %-10s %-10s" % (s,'flows','packets','bytes')
     for tt in d.search(query,statistics=s,statistics_order=so, limit=number):
         tt['whatever'] = tt[s]
         print "%(whatever)-19s %(flows)-10s %(packets)-10s %(bytes)-10s" % tt
