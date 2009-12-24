@@ -8,7 +8,7 @@
 from dateutil.parser import parse
 import pynfdump
 
-default_output_fields = ['flows', 'packets', 'bytes','pps', 'bpp', 'bps']
+default_output_fields = ['rank', 'flows', 'packets', 'bytes','pps', 'bpp', 'bps']
 
 def fmt_dict(d, keys):
     return ' '.join("%s=%s" % (k,d[k]) for k in keys)
@@ -23,7 +23,8 @@ def show_top(data_dir, remote_host, profile, sources, start_date=None, end_date=
 
     output_fields = ['date', s] + default_output_fields
 
-    for rec in d.search(query,statistics=s,statistics_order=so, limit=number):
+    for idx,rec in enumerate(d.search(query,statistics=s,statistics_order=so, limit=number)):
+        rec['rank'] = idx+1
         rec['date'] = start_date
         print fmt_dict(rec, output_fields)
             
