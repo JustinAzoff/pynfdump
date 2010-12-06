@@ -7,11 +7,17 @@
 
 from dateutil.parser import parse
 import pynfdump
+import cymruwhois
+
+class default:
+    pass
+default_owner = default()
+default_owner.owner=""
 
 default_output_fields = ['rank', 'flows', 'packets', 'bytes','pps', 'bpp', 'bps']
 
 def fmt_dict(d, keys):
-    return ' '.join("%s=%s" % (k,d[k]) for k in keys)
+    return ' '.join('%s="%s"' % (k,d[k]) for k in keys)
 
 def show_top(data_dir, remote_host, profile, sources, start_date=None, end_date=None, stat='ip/bytes', number=5, query=''):
     if start_date is None:
@@ -21,9 +27,23 @@ def show_top(data_dir, remote_host, profile, sources, start_date=None, end_date=
 
     s, so = stat.split("/")
 
-    output_fields = ['date', s] + default_output_fields
+    if 'as' in stat:
+        output_fields = ['date', s, "owner"] + default_output_fields
+    else:
+        output_fields = ['date', s] + default_output_fields
 
-    for idx,rec in enumerate(d.search(query,statistics=s,statistics_order=so, limit=number)):
+    records=list(d.search(query,statistics=s,statistics_order=so, limit=number))
+
+    if 'as' in stat:
+        c=cymruwhois.Client(memcache_host="lois:11211")
+        owners = c.lookupmany_dict(["AS%s" % rec['srcas'] for rec in records])
+        for rec in records:
+            owner = owners.get("AS%d" % rec['srcas'], default_owner)
+            rec['owner'] = owner.owner
+
+        
+
+    for idx,rec in enumerate(records):
         rec['rank'] = idx+1
         rec['date'] = start_date
         print fmt_dict(rec, output_fields)
