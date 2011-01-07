@@ -223,8 +223,8 @@ class Dumper:
             if aggregate is True:
                 cmd.append("-a")
             else:
-                if ',' not in aggregate:
-                    aggregate = ','.join(aggregate)
+                aggregate = aggregate.split(",")
+                aggregate = ','.join(aggregate)
                 aggregate = aggregate.replace(" ","")
                 cmd.extend(["-a", "-A", self._arg_escape(aggregate)])
 
