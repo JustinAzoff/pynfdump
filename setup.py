@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import sys, os
 from glob import glob
 
-version = '0.3'
+version = '0.3.1'
 
 setup(name='pynfdump',
     version=version,

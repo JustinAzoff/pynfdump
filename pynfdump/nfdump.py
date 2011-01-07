@@ -194,11 +194,6 @@ class Dumper:
         if self.remote_host:
             cmd = ['ssh', self.remote_host]
         cmd.extend(['nfdump', '-q', '-o', 'pipe'])
-        if filterfile:
-            cmd.extend(['-f', filterfile])
-        else:
-            cmd.append(self._arg_escape(query))
-
         if self.filename:
             cmd.extend(['-r', self.filename])
         else:
@@ -207,7 +202,6 @@ class Dumper:
                 d = os.path.join(self.datadir, self.profile, sources)
                 cmd.extend(['-M', d])
             cmd.extend(['-R', self._where])
-
 
         if aggregate and statistics:
             raise NFDumpError("Specify only one of aggregate and statistics")
@@ -233,6 +227,11 @@ class Dumper:
                 cmd.extend(['-n',str(limit)])
             else:
                 cmd.extend(['-c',str(limit)])
+
+        if filterfile:
+            cmd.extend(['-f', filterfile])
+        else:
+            cmd.append(self._arg_escape(query))
 
         out = run(cmd)
         if statistics:
