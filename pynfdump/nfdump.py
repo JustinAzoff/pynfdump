@@ -91,6 +91,12 @@ def maybe_int(val):
         pass
     return val
 
+def maybe_split(val, sep):
+    if hasattr(val, 'split'):
+        return val.split(sep)
+    return val
+
+
 class NFDumpError(Exception):
     pass
 
@@ -100,7 +106,7 @@ class Dumper:
             datadir = datadir + '/'
         self.datadir = datadir
         self.profile = profile
-        self.sources = sources
+        self.sources = maybe_split(sources, ',')
         self.remote_host = remote_host
         self.set_where()
         self.protocols = load_protocols()
@@ -217,7 +223,7 @@ class Dumper:
             if aggregate is True:
                 cmd.append("-a")
             else:
-                aggregate = aggregate.split(",")
+                aggregate = maybe_split(aggregate, ',')
                 aggregate = ','.join(aggregate)
                 aggregate = aggregate.replace(" ","")
                 cmd.extend(["-a", "-A", self._arg_escape(aggregate)])
