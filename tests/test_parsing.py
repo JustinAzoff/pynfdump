@@ -25,3 +25,11 @@ def test_parse_1():
         for k,v in b.items():
             msg =  "field:%s expected:%s actual:%s" % (k, v, a[k])
             assert str(a[k]) == v, msg
+
+from pynfdump.nfdump import maybe_split
+def test_maybe_split():
+    assert ["hello"] == maybe_split("hello",",")
+    assert ["hello"] == maybe_split(["hello"],",")
+
+    assert ["a","b"] == maybe_split(["a","b"], ",")
+    assert ["a","b"] == maybe_split("a,b", ",")
