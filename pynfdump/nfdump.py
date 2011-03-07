@@ -96,6 +96,15 @@ def maybe_split(val, sep):
         return val.split(sep)
     return val
 
+def flags_to_str(flags):
+    s = ""
+    s += flags & 32 and 'U' or '.'
+    s += flags & 16 and 'A' or '.'
+    s += flags &  8 and 'P' or '.'
+    s += flags &  4 and 'R' or '.'
+    s += flags &  2 and 'S' or '.'
+    s += flags &  1 and 'F' or '.'
+    return s
 
 class NFDumpError(Exception):
     pass
