@@ -58,7 +58,7 @@ def fn_to_output(f):
 
 def main(src, dst):
     done_filename = os.path.join(dst, "done", "all.txt")
-    files = [x for x in os.listdir(src) if x.startswith("nfcapd.")]
+    files = sorted([x for x in os.listdir(src) if x.startswith("nfcapd.")])
     done = set(l.strip() for l in open(done_filename))
     for f in files:
         if f in done:
