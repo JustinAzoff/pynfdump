@@ -166,6 +166,21 @@ class Dumper:
         else:
             return arg
 
+    def _base_cmd(self):
+        cmd = []
+        if self.remote_host:
+            cmd = ['ssh', self.remote_host]
+        cmd.extend(['nfdump', '-q', '-o', 'pipe'])
+        if self.filename:
+            cmd.extend(['-r', self.filename])
+        else:
+            if self.datadir and self.sources and self.profile:
+                sources = ':'.join(self.sources)
+                d = os.path.join(self.datadir, self.profile, sources)
+                cmd.extend(['-M', d])
+            cmd.extend(['-R', self._where])
+        return cmd
+
     def search(self, query='', filterfile=None, aggregate=None, statistics=None, statistics_order=None,limit=None):
         """Run nfdump with the following arguments
 
@@ -205,18 +220,7 @@ class Dumper:
         :param limit: number of results
         """
 
-        cmd = []
-        if self.remote_host:
-            cmd = ['ssh', self.remote_host]
-        cmd.extend(['nfdump', '-q', '-o', 'pipe'])
-        if self.filename:
-            cmd.extend(['-r', self.filename])
-        else:
-            if self.datadir and self.sources and self.profile:
-                sources = ':'.join(self.sources)
-                d = os.path.join(self.datadir, self.profile, sources)
-                cmd.extend(['-M', d])
-            cmd.extend(['-R', self._where])
+        cmd = self._base_cmd()
 
         if aggregate and statistics:
             raise NFDumpError("Specify only one of aggregate and statistics")
@@ -361,6 +365,22 @@ class Dumper:
             ret['sourcelist'] = sourcelist
         return ret
 
+    def flow_stats(self):
+        """Run nfdump -I to get flow stats"""
+        cmd = self._base_cmd()
+        cmd.append("-I")
+        out = run(cmd)
+        return self.parse_flow_stats(out)
+
+    def parse_flow_stats(self, out):
+        stats = {}
+        for line in out:
+            key, value = line.split(": ")
+            key = key.strip().lower()
+            value = maybe_int(value.strip())
+            stats[key] = value
+        return stats
+
 def search_file(filename, query='', filterfile=None, aggregate=None, statistics=None, statistics_order=None,limit=None):
     """Search a single nfcapd file
 
@@ -372,3 +392,9 @@ def search_file(filename, query='', filterfile=None, aggregate=None, statistics=
     d = Dumper()
     d.set_where(filename=filename)
     return d.search(query, filterfile, aggregate, statistics, statistics_order, limit)
+
+def flow_stats_file(filename):
+    """Get flow stats for a single nfcapd file"""
+    d = Dumper()
+    d.set_where(filename=filename)
+    return d.flow_stats()
