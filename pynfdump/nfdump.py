@@ -171,13 +171,15 @@ class Dumper:
         if self.remote_host:
             cmd = ['ssh', self.remote_host]
         cmd.extend(['nfdump', '-q', '-o', 'pipe'])
+
+        if self.datadir and self.sources and self.profile:
+            sources = ':'.join(self.sources)
+            d = os.path.join(self.datadir, self.profile, sources)
+            cmd.extend(['-M', d])
+
         if self.filename:
             cmd.extend(['-r', self.filename])
         else:
-            if self.datadir and self.sources and self.profile:
-                sources = ':'.join(self.sources)
-                d = os.path.join(self.datadir, self.profile, sources)
-                cmd.extend(['-M', d])
             cmd.extend(['-R', self._where])
         return cmd
 
