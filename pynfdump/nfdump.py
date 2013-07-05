@@ -118,7 +118,7 @@ class Dumper:
         self.profile = profile
         self.sources = maybe_split(sources, ',')
         self.remote_host = remote_host
-	self.exec_path = executable_path
+        self.exec_path = executable_path
         if os.path.isdir(self.exec_path):
             self.exec_path = os.path.join(self.exec_path, "nfdump")
         self.set_where()
