@@ -111,7 +111,7 @@ class NFDumpError(Exception):
     pass
 
 class Dumper:
-    def __init__(self, datadir='/', profile='live',sources=None,remote_host=None,executable_path=None):
+    def __init__(self, datadir='/', profile='live',sources=None,remote_host=None,executable_path='nfdump'):
         if not datadir.endswith("/"):
             datadir = datadir + '/'
         self.datadir = datadir
@@ -119,6 +119,8 @@ class Dumper:
         self.sources = maybe_split(sources, ',')
         self.remote_host = remote_host
 	self.exec_path = executable_path
+        if os.path.isdir(self.exec_path):
+            self.exec_path = os.path.join(self.exec_path, "nfdump")
         self.set_where()
         self.protocols = load_protocols()
 
@@ -172,14 +174,7 @@ class Dumper:
         cmd = []
         if self.remote_host:
             cmd = ['ssh', self.remote_host]
-	if self.exec_path:
-		if self.exec_path[-1:] == "/":
-			e=self.exec_path + "nfdump"
-		else:
-			e=self.exec_path + "/nfdump"
-	else:
-		e="nfdump"
-        cmd.extend([e, '-q', '-o', 'pipe'])
+        cmd.extend([self.exec_path, '-q', '-o', 'pipe'])
 
         if self.datadir and self.sources and self.profile:
             sources = ':'.join(self.sources)
