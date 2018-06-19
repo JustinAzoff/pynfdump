@@ -25,13 +25,11 @@ def load_protocols():
     f = open("/etc/protocols")
     protocols = {}
     for line in f:
-        if not line.strip():
-            break
-    for line in f:
-        if not line.strip(): break
-        if line.startswith("#"): continue
-        proto, num,_ = line.split(None,2)
-        protocols[int(num)] = proto
+        line = line.strip("\n")
+        if line:
+            if line.startswith("#"): continue
+            proto, num, _ = line.split("\t", 2)
+            protocols[int(num)] = proto
     protocols[0]='ip'
     f.close()
     return protocols
