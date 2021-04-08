@@ -28,7 +28,7 @@ def load_protocols():
         line = line.strip("\n")
         if line:
             if line.startswith("#"): continue
-            proto, num, _ = line.split("\t", 2)
+            proto, num, _ = line.split(maxsplit=2)
             protocols[int(num)] = proto
     protocols[0]='ip'
     f.close()
